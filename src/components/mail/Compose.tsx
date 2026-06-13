@@ -332,14 +332,14 @@ export function Compose({
               </motion.button>
 
               {/* Image button */}
-              <motion.button 
-                whileTap={{ scale: 0.9 }} 
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 onClick={() => imageInputRef.current?.click()}
                 className="rounded-lg p-2 text-muted-foreground transition hover:bg-white/[0.06] hover:text-foreground"
               >
                 <ImageIcon className="h-4 w-4" />
               </motion.button>
-              
+
               {/* Emoji button */}
               <div className="relative">
                 <motion.button 
