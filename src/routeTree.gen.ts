@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiV1ProtocolRouteImport } from './routes/api/v1/protocol'
 import { Route as ApiV1HealthRouteImport } from './routes/api/v1/health'
+import { Route as ApiV1ReceiptsIndexRouteImport } from './routes/api/v1/receipts/index'
 import { Route as ApiV1PostageIndexRouteImport } from './routes/api/v1/postage/index'
 import { Route as ApiV1PostageQuoteRouteImport } from './routes/api/v1/postage/quote'
 import { Route as ApiV1PostageMessageIdRouteImport } from './routes/api/v1/postage/$messageId'
@@ -34,6 +35,11 @@ const ApiV1ProtocolRoute = ApiV1ProtocolRouteImport.update({
 const ApiV1HealthRoute = ApiV1HealthRouteImport.update({
   id: '/api/v1/health',
   path: '/api/v1/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1ReceiptsIndexRoute = ApiV1ReceiptsIndexRouteImport.update({
+  id: '/api/v1/receipts/',
+  path: '/api/v1/receipts/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiV1PostageIndexRoute = ApiV1PostageIndexRouteImport.update({
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/api/v1/postage/$messageId': typeof ApiV1PostageMessageIdRouteWithChildren
   '/api/v1/postage/quote': typeof ApiV1PostageQuoteRoute
   '/api/v1/postage/': typeof ApiV1PostageIndexRoute
+  '/api/v1/receipts/': typeof ApiV1ReceiptsIndexRoute
   '/api/v1/postage/$messageId/refund': typeof ApiV1PostageMessageIdRefundRoute
   '/api/v1/postage/$messageId/settle': typeof ApiV1PostageMessageIdSettleRoute
   '/api/v1/policies/$owner/senders/$sender': typeof ApiV1PoliciesOwnerSendersSenderRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/api/v1/postage/$messageId': typeof ApiV1PostageMessageIdRouteWithChildren
   '/api/v1/postage/quote': typeof ApiV1PostageQuoteRoute
   '/api/v1/postage': typeof ApiV1PostageIndexRoute
+  '/api/v1/receipts': typeof ApiV1ReceiptsIndexRoute
   '/api/v1/postage/$messageId/refund': typeof ApiV1PostageMessageIdRefundRoute
   '/api/v1/postage/$messageId/settle': typeof ApiV1PostageMessageIdSettleRoute
   '/api/v1/policies/$owner/senders/$sender': typeof ApiV1PoliciesOwnerSendersSenderRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/api/v1/postage/$messageId': typeof ApiV1PostageMessageIdRouteWithChildren
   '/api/v1/postage/quote': typeof ApiV1PostageQuoteRoute
   '/api/v1/postage/': typeof ApiV1PostageIndexRoute
+  '/api/v1/receipts/': typeof ApiV1ReceiptsIndexRoute
   '/api/v1/postage/$messageId/refund': typeof ApiV1PostageMessageIdRefundRoute
   '/api/v1/postage/$messageId/settle': typeof ApiV1PostageMessageIdSettleRoute
   '/api/v1/policies/$owner/senders/$sender': typeof ApiV1PoliciesOwnerSendersSenderRoute
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/api/v1/postage/$messageId'
     | '/api/v1/postage/quote'
     | '/api/v1/postage/'
+    | '/api/v1/receipts/'
     | '/api/v1/postage/$messageId/refund'
     | '/api/v1/postage/$messageId/settle'
     | '/api/v1/policies/$owner/senders/$sender'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/api/v1/postage/$messageId'
     | '/api/v1/postage/quote'
     | '/api/v1/postage'
+    | '/api/v1/receipts'
     | '/api/v1/postage/$messageId/refund'
     | '/api/v1/postage/$messageId/settle'
     | '/api/v1/policies/$owner/senders/$sender'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/api/v1/postage/$messageId'
     | '/api/v1/postage/quote'
     | '/api/v1/postage/'
+    | '/api/v1/receipts/'
     | '/api/v1/postage/$messageId/refund'
     | '/api/v1/postage/$messageId/settle'
     | '/api/v1/policies/$owner/senders/$sender'
@@ -171,6 +183,7 @@ export interface RootRouteChildren {
   ApiV1PostageMessageIdRoute: typeof ApiV1PostageMessageIdRouteWithChildren
   ApiV1PostageQuoteRoute: typeof ApiV1PostageQuoteRoute
   ApiV1PostageIndexRoute: typeof ApiV1PostageIndexRoute
+  ApiV1ReceiptsIndexRoute: typeof ApiV1ReceiptsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -194,6 +207,13 @@ declare module '@tanstack/react-router' {
       path: '/api/v1/health'
       fullPath: '/api/v1/health'
       preLoaderRoute: typeof ApiV1HealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/receipts/': {
+      id: '/api/v1/receipts/'
+      path: '/api/v1/receipts'
+      fullPath: '/api/v1/receipts/'
+      preLoaderRoute: typeof ApiV1ReceiptsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/v1/postage/': {
@@ -290,6 +310,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiV1PostageMessageIdRoute: ApiV1PostageMessageIdRouteWithChildren,
   ApiV1PostageQuoteRoute: ApiV1PostageQuoteRoute,
   ApiV1PostageIndexRoute: ApiV1PostageIndexRoute,
+  ApiV1ReceiptsIndexRoute: ApiV1ReceiptsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
