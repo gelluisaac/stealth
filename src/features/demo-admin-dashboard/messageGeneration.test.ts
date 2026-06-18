@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { generateDemoMessages } from "./messageGeneration";
 import { fakePersonas } from "./fixtures";
+import type { TemplateCategory } from "./templates/types";
 import { CAMPAIGN_TEMPLATES as messageTemplates } from "./fixtures/campaignFixtures";
 
 describe("generateDemoMessages", () => {
@@ -9,10 +10,15 @@ describe("generateDemoMessages", () => {
     personas: fakePersonas,
     templates: messageTemplates.flatMap((t) =>
       t.checklist.map((c) => ({
-        id: c.id,
-        subject: c.label,
-        body: c.description,
-        category: t.name,
+        ...t, // Spread the rest of the properties from the template
+        id: c.id, // Override with specific checklist item id
+        subject: c.label, // Use checklist item label as subject
+        body: c.description, // Use checklist item description as body
+        name: c.label, // Use checklist item label as name
+        description: c.description, // Use checklist item description
+        category: t.name as TemplateCategory, // Assign category from parent template
+        recipients: [], // Add missing property
+        tags: [], // Add missing property
       })),
     ),
     seed: "test-seed",

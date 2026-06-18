@@ -1,5 +1,5 @@
 import type { Persona, PresetMail } from "./types";
-import type { MessageTemplate } from "./templates";
+import type { MessageTemplate } from "./templates/types";
 import {
   mockDiagnosticId,
   mockMessageHash,
