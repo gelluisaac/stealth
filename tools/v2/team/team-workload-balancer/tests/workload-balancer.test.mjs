@@ -21,9 +21,7 @@ function getUtilization(member, items) {
 }
 
 function calculateMemberWorkload(member, items) {
-  const assigned = items.filter(
-    (i) => i.assignedTo === member.id && i.status !== "completed",
-  );
+  const assigned = items.filter((i) => i.assignedTo === member.id && i.status !== "completed");
   const pendingCount = assigned.filter((i) => i.status === "pending").length;
   const inProgressCount = assigned.filter((i) => i.status === "in-progress").length;
   const overdueCount = assigned.filter((i) => {
@@ -32,9 +30,7 @@ function calculateMemberWorkload(member, items) {
   }).length;
   const totalEstimatedEffort = assigned.reduce((s, i) => s + i.estimatedEffort, 0);
   const utilization =
-    member.capacity > 0
-      ? Math.round(((assigned.length / member.capacity) * 100) * 10) / 10
-      : 100;
+    member.capacity > 0 ? Math.round((assigned.length / member.capacity) * 100 * 10) / 10 : 100;
   return {
     memberId: member.id,
     memberName: member.name,
@@ -50,8 +46,7 @@ function calculateMemberWorkload(member, items) {
 function calculateImbalanceScore(members) {
   if (members.length === 0) return 0;
   const avg = members.reduce((s, m) => s + m.utilization, 0) / members.length;
-  const variance =
-    members.reduce((s, m) => s + (m.utilization - avg) ** 2, 0) / members.length;
+  const variance = members.reduce((s, m) => s + (m.utilization - avg) ** 2, 0) / members.length;
   return Math.round(Math.sqrt(variance) * 10) / 10;
 }
 
@@ -62,9 +57,8 @@ function calculateWorkloadMetrics(members, items) {
   const totalItems = items.filter((i) => i.status !== "completed").length;
   const averageUtilization =
     members.length > 0
-      ? Math.round(
-          (memberWorkloads.reduce((s, m) => s + m.utilization, 0) / members.length) * 10,
-        ) / 10
+      ? Math.round((memberWorkloads.reduce((s, m) => s + m.utilization, 0) / members.length) * 10) /
+        10
       : 0;
   const utilizationValues = memberWorkloads.map((m) => m.utilization);
   const maxUtilization = utilizationValues.length > 0 ? Math.max(...utilizationValues) : 0;
@@ -217,13 +211,17 @@ describe("Team Workload Balancer — Service Logic", () => {
 
   describe("balanceWorkload", () => {
     it("assigns all unassigned items", () => {
-      const unassigned = sampleItems.filter((i) => i.assignedTo === null && i.status !== "completed");
+      const unassigned = sampleItems.filter(
+        (i) => i.assignedTo === null && i.status !== "completed",
+      );
       const result = balanceWorkload(unassigned, sampleMembers, sampleItems, defaultConfig);
       assert.strictEqual(result.assignments.length, unassigned.length);
     });
 
     it("every assignment has a valid member", () => {
-      const unassigned = sampleItems.filter((i) => i.assignedTo === null && i.status !== "completed");
+      const unassigned = sampleItems.filter(
+        (i) => i.assignedTo === null && i.status !== "completed",
+      );
       const result = balanceWorkload(unassigned, sampleMembers, sampleItems, defaultConfig);
       const memberIds = new Set(sampleMembers.map((m) => m.id));
       for (const a of result.assignments) {
@@ -232,7 +230,9 @@ describe("Team Workload Balancer — Service Logic", () => {
     });
 
     it("includes a reason for every assignment", () => {
-      const unassigned = sampleItems.filter((i) => i.assignedTo === null && i.status !== "completed");
+      const unassigned = sampleItems.filter(
+        (i) => i.assignedTo === null && i.status !== "completed",
+      );
       const result = balanceWorkload(unassigned, sampleMembers, sampleItems, defaultConfig);
       for (const a of result.assignments) {
         assert.ok(typeof a.reason === "string" && a.reason.length > 0);
@@ -240,14 +240,18 @@ describe("Team Workload Balancer — Service Logic", () => {
     });
 
     it("returns metrics with the result", () => {
-      const unassigned = sampleItems.filter((i) => i.assignedTo === null && i.status !== "completed");
+      const unassigned = sampleItems.filter(
+        (i) => i.assignedTo === null && i.status !== "completed",
+      );
       const result = balanceWorkload(unassigned, sampleMembers, sampleItems, defaultConfig);
       assert.ok(result.metrics.totalItems > 0);
       assert.strictEqual(result.metrics.members.length, 4);
     });
 
     it("round-robin strategy assigns all items", () => {
-      const unassigned = sampleItems.filter((i) => i.assignedTo === null && i.status !== "completed");
+      const unassigned = sampleItems.filter(
+        (i) => i.assignedTo === null && i.status !== "completed",
+      );
       const result = balanceWorkload(unassigned, sampleMembers, sampleItems, {
         ...defaultConfig,
         strategy: "round-robin",

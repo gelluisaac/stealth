@@ -35,21 +35,14 @@ function getUtilization(member: TeamMember, items: WorkloadItem[]): number {
   return member.capacity > 0 ? assigned / member.capacity : 1;
 }
 
-function calculateMemberWorkload(
-  member: TeamMember,
-  items: WorkloadItem[],
-): MemberWorkload {
-  const assigned = items.filter(
-    (i) => i.assignedTo === member.id && i.status !== "completed",
-  );
+function calculateMemberWorkload(member: TeamMember, items: WorkloadItem[]): MemberWorkload {
+  const assigned = items.filter((i) => i.assignedTo === member.id && i.status !== "completed");
   const pendingCount = assigned.filter((i) => i.status === "pending").length;
   const inProgressCount = assigned.filter((i) => i.status === "in-progress").length;
   const overdueCount = assigned.filter(isOverdue).length;
   const totalEstimatedEffort = assigned.reduce((s, i) => s + i.estimatedEffort, 0);
   const utilization =
-    member.capacity > 0
-      ? Math.round(((assigned.length / member.capacity) * 100) * 10) / 10
-      : 100;
+    member.capacity > 0 ? Math.round((assigned.length / member.capacity) * 100 * 10) / 10 : 100;
 
   return {
     memberId: member.id,
@@ -66,8 +59,7 @@ function calculateMemberWorkload(
 function calculateImbalanceScore(members: MemberWorkload[]): number {
   if (members.length === 0) return 0;
   const avg = members.reduce((s, m) => s + m.utilization, 0) / members.length;
-  const variance =
-    members.reduce((s, m) => s + (m.utilization - avg) ** 2, 0) / members.length;
+  const variance = members.reduce((s, m) => s + (m.utilization - avg) ** 2, 0) / members.length;
   return Math.round(Math.sqrt(variance) * 10) / 10;
 }
 
@@ -81,9 +73,8 @@ export function calculateWorkloadMetrics(
   const totalItems = items.filter((i) => i.status !== "completed").length;
   const averageUtilization =
     members.length > 0
-      ? Math.round(
-          (memberWorkloads.reduce((s, m) => s + m.utilization, 0) / members.length) * 10,
-        ) / 10
+      ? Math.round((memberWorkloads.reduce((s, m) => s + m.utilization, 0) / members.length) * 10) /
+        10
       : 0;
   const utilizationValues = memberWorkloads.map((m) => m.utilization);
   const maxUtilization = utilizationValues.length > 0 ? Math.max(...utilizationValues) : 0;
@@ -227,9 +218,7 @@ export function balanceWorkload(
     for (const item of sorted) {
       for (const tag of item.tags) allSkills.add(tag);
     }
-    candidates = members.filter(
-      (m) => m.skills.some((s) => allSkills.has(s)),
-    );
+    candidates = members.filter((m) => m.skills.some((s) => allSkills.has(s)));
     if (candidates.length === 0) candidates = [...members];
   }
 
@@ -286,13 +275,8 @@ export function createWorkloadService(config: WorkloadServiceConfig = {}) {
     return calculateWorkloadMetrics(members, items);
   }
 
-  async function getBalanceSuggestions(
-    config: BalancerConfig,
-  ): Promise<BalanceResult> {
-    const [members, allItems] = await Promise.all([
-      getTeamMembers(),
-      getWorkloadItems(),
-    ]);
+  async function getBalanceSuggestions(config: BalancerConfig): Promise<BalanceResult> {
+    const [members, allItems] = await Promise.all([getTeamMembers(), getWorkloadItems()]);
     const unassigned = allItems.filter((i) => i.assignedTo === null && i.status !== "completed");
     return balanceWorkload(unassigned, members, allItems, config);
   }

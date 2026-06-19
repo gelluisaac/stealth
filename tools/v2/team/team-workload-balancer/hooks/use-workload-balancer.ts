@@ -7,10 +7,7 @@ import type {
   WorkloadItem,
   WorkloadMetrics,
 } from "../types";
-import {
-  createWorkloadService,
-  type WorkloadService,
-} from "../services/workload-service";
+import { createWorkloadService, type WorkloadService } from "../services/workload-service";
 
 interface WorkloadBalancerState {
   teamMembers: FetchState<TeamMember[]>;
@@ -42,10 +39,7 @@ function initialState(): WorkloadBalancerState {
   };
 }
 
-function reducer(
-  state: WorkloadBalancerState,
-  action: Action,
-): WorkloadBalancerState {
+function reducer(state: WorkloadBalancerState, action: Action): WorkloadBalancerState {
   switch (action.type) {
     case "LOAD_MEMBERS_START":
       return { ...state, teamMembers: { status: "loading" } };
@@ -59,9 +53,7 @@ function reducer(
       return {
         ...state,
         workloadItems:
-          action.data.length === 0
-            ? { status: "empty" }
-            : { status: "success", data: action.data },
+          action.data.length === 0 ? { status: "empty" } : { status: "success", data: action.data },
       };
     case "LOAD_ITEMS_ERROR":
       return { ...state, workloadItems: { status: "error", message: action.message } };
