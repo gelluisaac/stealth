@@ -1,11 +1,6 @@
 import type { ExtractedContact } from "../types";
 import { Badge } from "../../../src/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../../src/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../../../src/components/ui/card";
 import { User, AtSign, Phone, Building2 } from "lucide-react";
 
 export interface ExtractedContactListProps {
@@ -45,9 +40,7 @@ function ContactField({
   );
 }
 
-export function ExtractedContactList({
-  contacts,
-}: ExtractedContactListProps) {
+export function ExtractedContactList({ contacts }: ExtractedContactListProps) {
   if (contacts.length === 0) return null;
 
   return (
@@ -65,10 +58,7 @@ export function ExtractedContactList({
               <User className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
               {contact.name ?? "Unknown"}
             </CardTitle>
-            <Badge
-              variant={sourceVariant[contact.source] ?? "outline"}
-              className="shrink-0"
-            >
+            <Badge variant={sourceVariant[contact.source] ?? "outline"} className="shrink-0">
               {sourceLabel[contact.source] ?? contact.source}
             </Badge>
           </CardHeader>

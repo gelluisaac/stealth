@@ -14,12 +14,10 @@ export function EmptyState({ onReset }: EmptyStateProps) {
       aria-label="No contacts found"
     >
       <Users className="w-12 h-12 text-muted-foreground mb-4" aria-hidden="true" />
-      <h2 className="text-lg font-semibold text-foreground mb-2">
-        No contacts found
-      </h2>
+      <h2 className="text-lg font-semibold text-foreground mb-2">No contacts found</h2>
       <p className="text-muted-foreground text-center max-w-sm mb-6">
-        The email text you provided doesn't contain any extractable contact
-        information. Try pasting a different message.
+        The email text you provided doesn't contain any extractable contact information. Try pasting
+        a different message.
       </p>
       {onReset && (
         <Button

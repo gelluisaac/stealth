@@ -18,10 +18,7 @@ export interface ContactInputPanelProps {
   isLoading?: boolean;
 }
 
-export function ContactInputPanel({
-  onExtract,
-  isLoading = false,
-}: ContactInputPanelProps) {
+export function ContactInputPanel({ onExtract, isLoading = false }: ContactInputPanelProps) {
   const [rawEmail, setRawEmail] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -72,8 +69,8 @@ export function ContactInputPanel({
           Contact Extractor
         </CardTitle>
         <CardDescription>
-          Paste an email message below to extract contact information such as
-          names, email addresses, phone numbers, and organizations.
+          Paste an email message below to extract contact information such as names, email
+          addresses, phone numbers, and organizations.
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
@@ -97,20 +94,13 @@ export function ContactInputPanel({
               spellCheck={false}
             />
             <p id="email-description" className="text-xs text-muted-foreground">
-              Press Ctrl+Enter to extract. Include full headers for best
-              results.
+              Press Ctrl+Enter to extract. Include full headers for best results.
             </p>
           </div>
 
           <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground">
-              Load sample email:
-            </p>
-            <div
-              className="flex flex-wrap gap-2"
-              role="group"
-              aria-label="Sample email fixtures"
-            >
+            <p className="text-xs font-medium text-muted-foreground">Load sample email:</p>
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Sample email fixtures">
               {SAMPLE_EMAILS.map((fixture) => (
                 <Button
                   key={fixture.label}

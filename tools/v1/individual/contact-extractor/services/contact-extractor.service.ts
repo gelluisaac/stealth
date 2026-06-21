@@ -1,8 +1,4 @@
-import type {
-  ExtractedContact,
-  ContactExtractionResult,
-  ExtractionOptions,
-} from "../types";
+import type { ExtractedContact, ContactExtractionResult, ExtractionOptions } from "../types";
 
 let _idCounter = 0;
 function generateId(): string {
@@ -10,8 +6,7 @@ function generateId(): string {
 }
 
 const EMAIL_RE = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-const PHONE_RE =
-  /(?:\+?1[-.\s]?)?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}/g;
+const PHONE_RE = /(?:\+?1[-.\s]?)?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}/g;
 const HEADER_NAME_RE = /"([^"]+)"\s*<[^>]+>/;
 const SIGNATURE_SEPARATORS = ["---", "-- ", "—", "--"];
 
@@ -36,9 +31,7 @@ function parseHeader(rawEmail: string): {
   };
 }
 
-function splitBodyAndSignature(
-  rawEmail: string,
-): { body: string; signature: string } {
+function splitBodyAndSignature(rawEmail: string): { body: string; signature: string } {
   const lines = rawEmail.split("\n");
   let signatureStart = -1;
 
@@ -57,12 +50,14 @@ function splitBodyAndSignature(
   const signature = lines.slice(signatureStart).join("\n").trim();
   const bodyLines = lines.slice(0, signatureStart);
   const bodyStart = bodyLines.findIndex(
-    (l) => l.trim() !== "" && !l.startsWith("From:") && !l.startsWith("To:") && !l.startsWith("Subject:"),
+    (l) =>
+      l.trim() !== "" &&
+      !l.startsWith("From:") &&
+      !l.startsWith("To:") &&
+      !l.startsWith("Subject:"),
   );
   const body =
-    bodyStart >= 0
-      ? bodyLines.slice(bodyStart).join("\n").trim()
-      : bodyLines.join("\n").trim();
+    bodyStart >= 0 ? bodyLines.slice(bodyStart).join("\n").trim() : bodyLines.join("\n").trim();
 
   return { body, signature };
 }
@@ -102,10 +97,7 @@ function extractOrganizations(text: string): string[] {
   const lines = text.split("\n").map((l) => l.trim());
   return lines.filter(
     (line) =>
-      line.length > 1 &&
-      !line.includes("@") &&
-      !line.match(PHONE_RE) &&
-      isLikelyOrganization(line),
+      line.length > 1 && !line.includes("@") && !line.match(PHONE_RE) && isLikelyOrganization(line),
   );
 }
 
@@ -171,10 +163,7 @@ function normalize(contact: ExtractedContact): ExtractedContact {
   return {
     ...contact,
     email: contact.email ? contact.email.toLowerCase().trim() : null,
-    name:
-      contact.name
-        ?.replace(/^["']|["']$/g, "")
-        .trim() || null,
+    name: contact.name?.replace(/^["']|["']$/g, "").trim() || null,
   };
 }
 
@@ -206,9 +195,7 @@ function deduplicate(contacts: ExtractedContact[]): ExtractedContact[] {
   return [...noEmail, ...map.values()];
 }
 
-export function createContactExtractorService(
-  config: ContactExtractorServiceConfig = {},
-) {
+export function createContactExtractorService(config: ContactExtractorServiceConfig = {}) {
   const { delayMs = 0 } = config;
 
   async function delay(): Promise<void> {

@@ -43,10 +43,7 @@ export function useContactExtractor(
 
       try {
         const mergedOptions = { ...defaultOptions, ...opts };
-        const extractionResult = await svc.extractAsync(
-          rawEmail,
-          mergedOptions,
-        );
+        const extractionResult = await svc.extractAsync(rawEmail, mergedOptions);
 
         if (extractionResult.contacts.length === 0) {
           setViewState("empty");
@@ -56,8 +53,7 @@ export function useContactExtractor(
           setResult(extractionResult);
         }
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to extract contacts.";
+        const message = err instanceof Error ? err.message : "Failed to extract contacts.";
         setError(message);
         setViewState("error");
       }

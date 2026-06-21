@@ -2,9 +2,7 @@ export interface LoadingStateProps {
   message?: string;
 }
 
-export function LoadingState({
-  message = "Extracting contacts...",
-}: LoadingStateProps) {
+export function LoadingState({ message = "Extracting contacts..." }: LoadingStateProps) {
   return (
     <div
       role="status"

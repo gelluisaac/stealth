@@ -22,9 +22,7 @@ export function SuccessState({ contactCount, onReset }: SuccessStateProps) {
         <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">
           Extracted {contactCount} contact{contactCount !== 1 ? "s" : ""}
         </p>
-        <p className="text-xs text-emerald-600 dark:text-emerald-400">
-          Review the details below
-        </p>
+        <p className="text-xs text-emerald-600 dark:text-emerald-400">Review the details below</p>
       </div>
       {onReset && (
         <Button

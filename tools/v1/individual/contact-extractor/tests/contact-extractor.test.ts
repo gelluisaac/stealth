@@ -21,9 +21,7 @@ describe("ContactExtractorService", () => {
       const result = svc.extract(SAMPLE_EMAILS[0].raw);
       expect(result.contacts.length).toBeGreaterThanOrEqual(1);
 
-      const headerContact = result.contacts.find(
-        (c) => c.source === "header",
-      );
+      const headerContact = result.contacts.find((c) => c.source === "header");
       expect(headerContact).toBeDefined();
       expect(headerContact?.name).toBe("Alice Johnson");
       expect(headerContact?.email).toBe("alice@example.com");
@@ -38,9 +36,7 @@ describe("ContactExtractorService", () => {
 
     it("extracts multiple contacts from body", () => {
       const result = svc.extract(SAMPLE_EMAILS[1].raw);
-      const bodyContacts = result.contacts.filter(
-        (c) => c.source === "body",
-      );
+      const bodyContacts = result.contacts.filter((c) => c.source === "body");
       expect(bodyContacts.length).toBeGreaterThanOrEqual(2);
     });
 
@@ -52,34 +48,27 @@ describe("ContactExtractorService", () => {
 
     it("handles malformed From header gracefully", () => {
       const result = svc.extract(SAMPLE_EMAILS[3].raw);
-      const headerContact = result.contacts.find(
-        (c) => c.source === "header",
-      );
+      const headerContact = result.contacts.find((c) => c.source === "header");
       expect(headerContact).toBeUndefined();
     });
 
     it("deduplicates contacts with same email", () => {
       const result = svc.extract(SAMPLE_EMAILS[4].raw);
       const henryContacts = result.contacts.filter(
-        (c) =>
-          c.email?.toLowerCase() === "henry@example.com",
+        (c) => c.email?.toLowerCase() === "henry@example.com",
       );
       expect(henryContacts).toHaveLength(1);
     });
 
     it("normalizes email to lowercase", () => {
       const result = svc.extract(SAMPLE_EMAILS[0].raw);
-      const headerContact = result.contacts.find(
-        (c) => c.source === "header",
-      );
+      const headerContact = result.contacts.find((c) => c.source === "header");
       expect(headerContact?.email).toBe("alice@example.com");
     });
 
     it("strips quotes from name", () => {
       const result = svc.extract(SAMPLE_EMAILS[0].raw);
-      const headerContact = result.contacts.find(
-        (c) => c.source === "header",
-      );
+      const headerContact = result.contacts.find((c) => c.source === "header");
       expect(headerContact?.name).not.toContain('"');
     });
 
@@ -89,8 +78,7 @@ describe("ContactExtractorService", () => {
         dedupe: false,
       });
       const henryContacts = result.contacts.filter(
-        (c) =>
-          c.email?.toLowerCase() === "henry@example.com",
+        (c) => c.email?.toLowerCase() === "henry@example.com",
       );
       expect(henryContacts.length).toBeGreaterThan(1);
     });
@@ -159,7 +147,14 @@ describe("ContactExtractorService", () => {
     });
 
     it("produces deterministic contact data (ignoring ids)", () => {
-      const stripIds = (c: { id: string; name: string | null; email: string | null; phone: string | null; organization: string | null; source: "header" | "signature" | "body" }) => ({
+      const stripIds = (c: {
+        id: string;
+        name: string | null;
+        email: string | null;
+        phone: string | null;
+        organization: string | null;
+        source: "header" | "signature" | "body";
+      }) => ({
         name: c.name,
         email: c.email,
         phone: c.phone,
@@ -169,9 +164,7 @@ describe("ContactExtractorService", () => {
       for (const fixture of SAMPLE_EMAILS) {
         const first = svc.extract(fixture.raw);
         const second = svc.extract(fixture.raw);
-        expect(first.contacts.map(stripIds)).toEqual(
-          second.contacts.map(stripIds),
-        );
+        expect(first.contacts.map(stripIds)).toEqual(second.contacts.map(stripIds));
       }
     });
   });

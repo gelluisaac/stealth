@@ -12,11 +12,8 @@ export interface ContactExtractorConsoleProps {
   className?: string;
 }
 
-export function ContactExtractorConsole({
-  className = "",
-}: ContactExtractorConsoleProps) {
-  const { viewState, error, extract, reset, contacts } =
-    useContactExtractor();
+export function ContactExtractorConsole({ className = "" }: ContactExtractorConsoleProps) {
+  const { viewState, error, extract, reset, contacts } = useContactExtractor();
 
   const handleExtract = useCallback(
     (rawEmail: string) => {
@@ -30,9 +27,7 @@ export function ContactExtractorConsole({
   }, [reset]);
 
   const viewStates: Record<ViewState, React.ReactNode> = {
-    input: (
-      <ContactInputPanel onExtract={handleExtract} isLoading={false} />
-    ),
+    input: <ContactInputPanel onExtract={handleExtract} isLoading={false} />,
     loading: (
       <>
         <ContactInputPanel onExtract={handleExtract} isLoading={true} />
