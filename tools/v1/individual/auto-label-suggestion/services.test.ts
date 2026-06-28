@@ -46,7 +46,8 @@ describe("Auto Label Suggestion core service", () => {
       from: "security@stellar.example",
       subject: "Verification code and USDC payout invoice meeting",
       snippet: "Please review the payment receipt before noon and confirm the agenda invite.",
-      bodyPreview: "Use this one-time code if you are signing in. Transaction hash is attached. Unsubscribe link included.",
+      bodyPreview:
+        "Use this one-time code if you are signing in. Transaction hash is attached. Unsubscribe link included.",
     });
 
     expect(result.status).toBe("success");
@@ -56,7 +57,9 @@ describe("Auto Label Suggestion core service", () => {
       "Finance",
       "Stellar",
     ]);
-    expect(result.suggestions.every((suggestion) => suggestion.reason && suggestion.evidence)).toBe(true);
+    expect(result.suggestions.every((suggestion) => suggestion.reason && suggestion.evidence)).toBe(
+      true,
+    );
   });
 
   it("returns deterministic validation errors for incomplete or malformed email records", () => {
@@ -77,6 +80,8 @@ describe("Auto Label Suggestion core service", () => {
 
     expect(result.status).toBe("error");
     expect(result.suggestions).toEqual([]);
-    expect(result.validationErrors).toContain("receivedAt must be an ISO-compatible date when provided.");
+    expect(result.validationErrors).toContain(
+      "receivedAt must be an ISO-compatible date when provided.",
+    );
   });
 });

@@ -72,14 +72,18 @@ const labelRules: LabelRule[] = [
     priority: 4,
     reason: "Meeting, invite, agenda, time, or rescheduling language was detected.",
     highScore: 2,
-    patterns: [/\b(meeting|invite|reschedule|agenda|calendar|onboarding review|\d{1,2}\s?(am|pm))\b/i],
+    patterns: [
+      /\b(meeting|invite|reschedule|agenda|calendar|onboarding review|\d{1,2}\s?(am|pm))\b/i,
+    ],
   },
   {
     label: "Newsletter",
     priority: 6,
     reason: "Digest, update, release, or unsubscribe language suggests a newsletter.",
     highScore: 2,
-    patterns: [/\b(unsubscribe|weekly digest|release digest|product update|preferences|this month'?s)\b/i],
+    patterns: [
+      /\b(unsubscribe|weekly digest|release digest|product update|preferences|this month'?s)\b/i,
+    ],
   },
 ];
 
@@ -88,8 +92,10 @@ export function validateAutoLabelEmail(input: Partial<AutoLabelEmail>): string[]
 
   if (!input.id || input.id.trim().length === 0) errors.push("Email id is required.");
   if (!input.from || input.from.trim().length === 0) errors.push("Email sender is required.");
-  if (!input.subject || input.subject.trim().length === 0) errors.push("Email subject is required.");
-  if (!input.snippet || input.snippet.trim().length === 0) errors.push("Email snippet is required.");
+  if (!input.subject || input.subject.trim().length === 0)
+    errors.push("Email subject is required.");
+  if (!input.snippet || input.snippet.trim().length === 0)
+    errors.push("Email snippet is required.");
   if (input.receivedAt && Number.isNaN(Date.parse(input.receivedAt))) {
     errors.push("receivedAt must be an ISO-compatible date when provided.");
   }
@@ -121,7 +127,9 @@ export function suggestAutoLabels(input: AutoLabelEmail): AutoLabelResult {
 }
 
 function matchRules(input: AutoLabelEmail): RuleMatch[] {
-  const text = normalizeWhitespace([input.from, input.subject, input.snippet, input.bodyPreview].filter(Boolean).join(". "));
+  const text = normalizeWhitespace(
+    [input.from, input.subject, input.snippet, input.bodyPreview].filter(Boolean).join(". "),
+  );
 
   return labelRules.flatMap((rule) => {
     const evidence = rule.patterns
@@ -130,7 +138,9 @@ function matchRules(input: AutoLabelEmail): RuleMatch[] {
 
     if (evidence.length === 0) return [];
 
-    return [{ label: rule.label, score: evidence.length, reason: rule.reason, evidence: evidence[0] }];
+    return [
+      { label: rule.label, score: evidence.length, reason: rule.reason, evidence: evidence[0] },
+    ];
   });
 }
 
