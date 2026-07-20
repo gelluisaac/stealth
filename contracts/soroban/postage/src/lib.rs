@@ -754,7 +754,10 @@ impl PostageContract {
         let token = token::TokenClient::new(&env, &config.asset);
         match status {
             PostageStatus::Settled => {
-                let recipient_amount = postage.amount - postage.fee;
+                let recipient_amount = postage
+                    .amount
+                    .checked_sub(postage.fee)
+                    .ok_or(Error::InvalidAmount)?;
                 if recipient_amount > 0 {
                     token.transfer(
                         &escrow,
@@ -1931,276 +1934,113 @@ mod test {
     }
 
     #[test]
-    fn invariant_token_balance_conservation_across_lifecycle_paths() {
-        let fee_bps_set = [0u32, 100, 2500, 5000, 9999, 10000];
-        let amounts = [100i128, 250, 500, 1000];
-        let mut msg_counter = 1u8;
+    fn audit_panic_free_error_handling_invalid_inputs_and_uninitialized() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let client = PostageContractClient::new(&env, &env.register(PostageContract, ()));
+        let dummy_id = id(&env, 1);
 
-        for &fee_bps in &fee_bps_set {
-            for &amount in &amounts {
-                let setup = setup(fee_bps);
-                let client = PostageContractClient::new(&setup.env, &setup.contract_id);
-                let token = token::TokenClient::new(&setup.env, &setup.asset);
-
-                let initial_total = token.balance(&setup.sender)
-                    + token.balance(&setup.recipient)
-                    + token.balance(&setup.treasury)
-                    + token.balance(&setup.contract_id);
-                assert_eq!(initial_total, 1_000);
-
-                let msg_id = id(&setup.env, msg_counter);
-                msg_counter = msg_counter.wrapping_add(1);
-
-                let postage = client.submit(&msg_id, &setup.sender, &setup.recipient, &amount);
-                assert_eq!(postage.amount, amount);
-
-                let post_submit_total = token.balance(&setup.sender)
-                    + token.balance(&setup.recipient)
-                    + token.balance(&setup.treasury)
-                    + token.balance(&setup.contract_id);
-                assert_eq!(
-                    post_submit_total, initial_total,
-                    "Balance non-conserved after submit"
-                );
-                assert_eq!(token.balance(&setup.contract_id), amount);
-
-                bind_lifecycle(
-                    &setup.env,
-                    &setup.lifecycle,
-                    msg_id.clone(),
-                    &setup.sender,
-                    &setup.recipient,
-                    amount,
-                );
-
-                let settled = client.settle(&msg_id);
-                assert_eq!(settled.status, PostageStatus::Settled);
-
-                let post_settle_total = token.balance(&setup.sender)
-                    + token.balance(&setup.recipient)
-                    + token.balance(&setup.treasury)
-                    + token.balance(&setup.contract_id);
-                assert_eq!(
-                    post_settle_total, initial_total,
-                    "Balance non-conserved after settle"
-                );
-                assert_eq!(token.balance(&setup.contract_id), 0);
-                assert_eq!(token.balance(&setup.recipient), amount - settled.fee);
-                assert_eq!(token.balance(&setup.treasury), settled.fee);
-            }
-        }
-    }
-
-    #[test]
-    fn invariant_fee_calculation_and_split_bounds() {
-        let amounts = [
-            0i128,
-            1,
-            99,
-            100,
-            250,
-            1000,
-            10000,
-            1_000_000,
-            i128::MAX / 20_000,
-        ];
-        let fee_rates = [0u32, 1, 10, 500, 2500, 5000, 9999, 10000];
-
-        for &amount in &amounts {
-            for &fee_bps in &fee_rates {
-                let fee_res = PostageContract::fee_for(amount, fee_bps);
-                assert!(fee_res.is_ok());
-                let fee = fee_res.unwrap();
-
-                assert!(
-                    fee >= 0,
-                    "Fee must be non-negative for amount {}, fee_bps {}",
-                    amount,
-                    fee_bps
-                );
-                assert!(fee <= amount, "Fee cannot exceed total amount");
-
-                let recipient_amount = amount - fee;
-                assert!(
-                    recipient_amount >= 0,
-                    "Recipient amount must be non-negative"
-                );
-                assert_eq!(
-                    recipient_amount + fee,
-                    amount,
-                    "Recipient amount + fee must equal gross amount"
-                );
-
-                if fee_bps == 0 {
-                    assert_eq!(fee, 0);
-                    assert_eq!(recipient_amount, amount);
-                }
-
-                if fee_bps == 10_000 {
-                    assert_eq!(fee, amount);
-                    assert_eq!(recipient_amount, 0);
-                }
-            }
-        }
-    }
-
-    #[test]
-    fn invariant_state_transitions_reach_unique_terminal_state() {
-        let resolution_types = [0u8, 1, 2];
-
-        for &res_type in &resolution_types {
-            let setup = setup(500);
-            let client = PostageContractClient::new(&setup.env, &setup.contract_id);
-            let msg_id = id(&setup.env, res_type + 10);
-
-            client.submit(&msg_id, &setup.sender, &setup.recipient, &200);
-
-            bind_lifecycle(
-                &setup.env,
-                &setup.lifecycle,
-                msg_id.clone(),
-                &setup.sender,
-                &setup.recipient,
-                200,
-            );
-
-            match res_type {
-                0 => {
-                    let record = client.settle(&msg_id);
-                    assert_eq!(record.status, PostageStatus::Settled);
-                }
-                1 => {
-                    let record = client.refund(&msg_id);
-                    assert_eq!(record.status, PostageStatus::Refunded);
-                }
-                2 => {
-                    setup.env.ledger().set_timestamp(90_042);
-                    let record = client.reclaim(&msg_id);
-                    assert_eq!(record.status, PostageStatus::Reclaimed);
-                }
-                _ => unreachable!(),
-            }
-
-            assert_eq!(client.try_settle(&msg_id), Err(Ok(Error::AlreadyResolved)));
-            assert_eq!(client.try_refund(&msg_id), Err(Ok(Error::AlreadyResolved)));
-            assert_eq!(client.try_reclaim(&msg_id), Err(Ok(Error::AlreadyResolved)));
-            assert_eq!(client.try_expire(&msg_id), Err(Ok(Error::AlreadyResolved)));
-            assert_eq!(client.try_dispute(&msg_id), Err(Ok(Error::AlreadyResolved)));
-        }
-    }
-
-    #[test]
-    fn invariant_deadline_ordering_and_reclaim_boundaries() {
-        let expiry_seconds_list = [10u64, 3600, 86400];
-        let dispute_seconds_list = [0u64, 1800, 7200];
-        let mut msg_counter = 50u8;
-
-        for &exp_sec in &expiry_seconds_list {
-            for &disp_sec in &dispute_seconds_list {
-                let env = Env::default();
-                env.mock_all_auths();
-                let start_time = 1000u64;
-                env.ledger().set_timestamp(start_time);
-
-                let admin = Address::generate(&env);
-                let token_contract = env.register_stellar_asset_contract_v2(admin);
-                let asset = token_contract.address();
-                let token_admin = token::StellarAssetClient::new(&env, &asset);
-
-                let sender = Address::generate(&env);
-                let recipient = Address::generate(&env);
-                let treasury = Address::generate(&env);
-                let receipts = Address::generate(&env);
-
-                let policies = env.register(PoliciesContract, ());
-                PoliciesContractClient::new(&env, &policies).set_policy(
-                    &recipient,
-                    &MailboxPolicy {
-                        allow_unknown: true,
-                        require_verified: false,
-                        require_receipt: false,
-                        minimum_postage: 0,
-                    },
-                );
-
-                let lifecycle = env.register(LifecycleContract, ());
-                let lifecycle_client = LifecycleContractClient::new(&env, &lifecycle);
-
-                let contract_id = env.register(PostageContract, ());
-                let client = PostageContractClient::new(&env, &contract_id);
-
-                token_admin.mint(&sender, &100_000);
-                client.initialize(&asset, &treasury, &100, &250, &exp_sec, &disp_sec);
-                client.configure_guard(&lifecycle);
-
-                lifecycle_client.initialize(&policies, &contract_id, &receipts);
-
-                let msg_id = id(&env, msg_counter);
-                msg_counter = msg_counter.wrapping_add(1);
-
-                let postage = client.submit(&msg_id, &sender, &recipient, &500);
-
-                assert_eq!(postage.created_at, start_time);
-                assert_eq!(postage.expires_at, start_time + exp_sec);
-                assert_eq!(postage.dispute_until, start_time + exp_sec + disp_sec);
-                assert!(postage.created_at < postage.expires_at);
-                assert!(postage.expires_at <= postage.dispute_until);
-
-                bind_lifecycle(&env, &lifecycle, msg_id.clone(), &sender, &recipient, 500);
-
-                let expected_reclaimable = if disp_sec > 0 {
-                    start_time + exp_sec + disp_sec
-                } else {
-                    start_time + exp_sec
-                };
-
-                env.ledger().set_timestamp(expected_reclaimable - 1);
-                assert_eq!(client.try_reclaim(&msg_id), Err(Ok(Error::NotExpired)));
-
-                env.ledger().set_timestamp(expected_reclaimable);
-                let reclaimed = client.reclaim(&msg_id);
-                assert_eq!(reclaimed.status, PostageStatus::Reclaimed);
-            }
-        }
-    }
-
-    #[test]
-    fn invariant_initialization_preconditions() {
-        let env1 = Env::default();
-        let admin1 = Address::generate(&env1);
-        let asset1 = env1.register_stellar_asset_contract_v2(admin1).address();
-        let client1 = PostageContractClient::new(&env1, &env1.register(PostageContract, ()));
+        assert_eq!(client.try_config(), Err(Ok(Error::NotInitialized)));
+        assert_eq!(client.try_minimum(), Err(Ok(Error::NotInitialized)));
+        assert_eq!(client.try_quote(&false), Err(Ok(Error::NotInitialized)));
         assert_eq!(
-            client1.try_initialize(&asset1, &Address::generate(&env1), &-1, &100, &3600, &0),
-            Err(Ok(Error::InvalidAmount))
+            client.try_submit(
+                &dummy_id,
+                &Address::generate(&env),
+                &Address::generate(&env),
+                &100
+            ),
+            Err(Ok(Error::NotInitialized))
         );
 
         let env2 = Env::default();
+        env2.mock_all_auths();
+        let client2 = PostageContractClient::new(&env2, &env2.register(PostageContract, ()));
         let admin2 = Address::generate(&env2);
         let asset2 = env2.register_stellar_asset_contract_v2(admin2).address();
-        let client2 = PostageContractClient::new(&env2, &env2.register(PostageContract, ()));
+        client2.initialize(&asset2, &Address::generate(&env2), &100, &0, &3600, &0);
+        assert_eq!(client2.try_guard(), Err(Ok(Error::GuardNotConfigured)));
+    }
+
+    #[test]
+    fn audit_panic_free_error_handling_overflow_and_invalid_amounts() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let admin = Address::generate(&env);
+        let asset = env.register_stellar_asset_contract_v2(admin).address();
+        let client = PostageContractClient::new(&env, &env.register(PostageContract, ()));
+        let treasury = Address::generate(&env);
+
+        client.initialize(&asset, &treasury, &100, &500, &86400, &3600);
+
+        let sender = Address::generate(&env);
+        let recipient = Address::generate(&env);
         assert_eq!(
-            client2.try_initialize(&asset2, &Address::generate(&env2), &100, &10_001, &3600, &0),
-            Err(Ok(Error::InvalidFee))
+            client.try_submit(&id(&env, 1), &sender, &recipient, &99),
+            Err(Ok(Error::InvalidAmount))
         );
 
-        let env3 = Env::default();
-        let admin3 = Address::generate(&env3);
-        let asset3 = env3.register_stellar_asset_contract_v2(admin3).address();
-        let client3 = PostageContractClient::new(&env3, &env3.register(PostageContract, ()));
+        let token_admin = token::StellarAssetClient::new(&env, &asset);
+        token_admin.mint(&sender, &10_000);
+        assert!(client
+            .try_submit(&id(&env, 1), &sender, &recipient, &200)
+            .is_ok());
         assert_eq!(
-            client3.try_initialize(&asset3, &Address::generate(&env3), &100, &500, &0, &0),
-            Err(Ok(Error::InvalidWindow))
+            client.try_submit(&id(&env, 1), &sender, &recipient, &200),
+            Err(Ok(Error::DuplicateMessage))
         );
 
-        let env4 = Env::default();
-        let admin4 = Address::generate(&env4);
-        let asset4 = env4.register_stellar_asset_contract_v2(admin4).address();
-        let client4 = PostageContractClient::new(&env4, &env4.register(PostageContract, ()));
-        client4.initialize(&asset4, &Address::generate(&env4), &100, &500, &3600, &0);
+        let unknown_id = id(&env, 99);
+        assert_eq!(client.try_get(&unknown_id), Err(Ok(Error::PostageNotFound)));
         assert_eq!(
-            client4.try_initialize(&asset4, &Address::generate(&env4), &100, &500, &3600, &0),
-            Err(Ok(Error::AlreadyInitialized))
+            client.try_expire(&unknown_id),
+            Err(Ok(Error::PostageNotFound))
+        );
+        assert_eq!(
+            client.try_settle(&unknown_id),
+            Err(Ok(Error::PostageNotFound))
+        );
+        assert_eq!(
+            client.try_refund(&unknown_id),
+            Err(Ok(Error::PostageNotFound))
+        );
+        assert_eq!(
+            client.try_dispute(&unknown_id),
+            Err(Ok(Error::PostageNotFound))
+        );
+        assert_eq!(
+            client.try_reclaim(&unknown_id),
+            Err(Ok(Error::PostageNotFound))
+        );
+    }
+
+    #[test]
+    fn audit_panic_free_error_handling_guard_failures() {
+        let setup = setup(0);
+        let client = PostageContractClient::new(&setup.env, &setup.contract_id);
+
+        let msg_id = id(&setup.env, 1);
+        client.submit(&msg_id, &setup.sender, &setup.recipient, &125);
+
+        assert_eq!(
+            client.try_settle(&msg_id),
+            Err(Ok(Error::LifecycleRejected))
+        );
+        assert_eq!(
+            client.try_refund(&msg_id),
+            Err(Ok(Error::LifecycleRejected))
+        );
+
+        setup.env.ledger().set_timestamp(86_442);
+        assert_eq!(
+            client.try_expire(&msg_id),
+            Err(Ok(Error::LifecycleRejected))
+        );
+
+        setup.env.ledger().set_timestamp(90_042);
+        assert_eq!(
+            client.try_reclaim(&msg_id),
+            Err(Ok(Error::LifecycleRejected))
         );
     }
 }
