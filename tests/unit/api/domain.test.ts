@@ -118,7 +118,9 @@ describe("API domain schemas", () => {
         readAt: null,
       };
 
-      expect(() => receiptSchema.parse(invalid)).toThrow("Delivery timestamp is too far in the future");
+      expect(() => receiptSchema.parse(invalid)).toThrow(
+        "Delivery timestamp is too far in the future",
+      );
     });
 
     it("rejects excessively future readAt timestamps", () => {
@@ -148,7 +150,9 @@ describe("API domain schemas", () => {
         readAt: null,
       };
 
-      expect(() => customSchema.parse(invalid)).toThrow("Delivery timestamp is too far in the future");
+      expect(() => customSchema.parse(invalid)).toThrow(
+        "Delivery timestamp is too far in the future",
+      );
 
       // 500ms after customNow -> within tolerance
       const validDelivered = new Date(customNow.getTime() + 500).toISOString();
@@ -161,4 +165,3 @@ describe("API domain schemas", () => {
     });
   });
 });
-
