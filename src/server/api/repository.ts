@@ -281,6 +281,8 @@ const RETRY_SAFE_OPERATIONS = new Set<string>([
   "setSenderRule",
   "setPostage",
   "setReceipt",
+  "createReceiptIfAbsent",
+  "markReceiptRead",
   "setIdempotencyRecord",
   "transitionPostage",
   "markReceiptRead",
@@ -387,7 +389,7 @@ export class RetryableApiRepository implements ApiRepository {
   }
 
   createReceiptIfAbsent(receipt: Receipt): Promise<{ created: boolean; receipt: Receipt }> {
-    return this.inner.createReceiptIfAbsent(receipt);
+    return this.withRetry("createReceiptIfAbsent", () => this.inner.createReceiptIfAbsent(receipt));
   }
 
   markReceiptRead(messageId: string, actor: string, now?: Date): Promise<MarkReceiptReadResult> {
