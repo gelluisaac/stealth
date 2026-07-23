@@ -8,9 +8,14 @@ export interface CryptoTestVectors {
   getRandomValues?: (array: Uint8Array) => Uint8Array;
   now?: () => Date;
   generateKey?: (
-    algorithm: AlgorithmIdentifier | RsaHashedKeyGenParams | EcKeyGenParams | HmacKeyGenParams | AesKeyGenParams,
+    algorithm:
+      | AlgorithmIdentifier
+      | RsaHashedKeyGenParams
+      | EcKeyGenParams
+      | HmacKeyGenParams
+      | AesKeyGenParams,
     extractable: boolean,
-    keyUsages: KeyUsage[]
+    keyUsages: KeyUsage[],
   ) => Promise<any>;
 }
 
