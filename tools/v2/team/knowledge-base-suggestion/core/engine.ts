@@ -15,11 +15,7 @@ import type {
 } from "../types";
 import { RankingStrategy, DEFAULT_SUGGESTION_CONFIG } from "../types";
 import { scoreArticle, computeScores, normalizeScore } from "./scoring";
-import {
-  rankArticles,
-  applyRankingStrategy,
-  type ScoredResult,
-} from "./ranking";
+import { rankArticles, applyRankingStrategy, type ScoredResult } from "./ranking";
 import { filterCorpus } from "./filters";
 import { validateInput } from "./validation";
 import { SuggestionCache } from "./cache";
@@ -65,7 +61,11 @@ export type KbContractOutput = {
 
 /** Backend-facing entry point for KB suggestions. */
 export interface KbContract {
-  execute(input: KbOperation, corpus: KbArticle[], filters?: KbCorpusFilter[]): KbResult<KbContractOutput>;
+  execute(
+    input: KbOperation,
+    corpus: KbArticle[],
+    filters?: KbCorpusFilter[],
+  ): KbResult<KbContractOutput>;
 }
 
 /** Typed success outcome. */
@@ -76,7 +76,7 @@ export function ok<T>(value: T): { ok: true; value: T } {
 /** Typed error outcome. */
 export function fail<T = never>(
   error: KbErrorCode,
-  message: string
+  message: string,
 ): { ok: false; error: KbErrorCode; message: string } {
   return { ok: false, error, message };
 }
@@ -105,13 +105,13 @@ export function hashCorpus(corpus: KbArticle[]): string {
   for (const article of corpus) {
     for (let i = 0; i < article.id.length; i++) {
       const char = article.id.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash;
     }
     if (article.revision) {
       for (let i = 0; i < article.revision.length; i++) {
         const char = article.revision.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
+        hash = (hash << 5) - hash + char;
         hash = hash & hash;
       }
     }
@@ -171,9 +171,10 @@ export function suggestKb(
     };
   }
 
-  const ranked = mergedConfig.strategy && mergedConfig.strategy !== RankingStrategy.Default
-    ? applyRankingStrategy(scored, mergedConfig)
-    : rankArticles(scored, clampedLimit);
+  const ranked =
+    mergedConfig.strategy && mergedConfig.strategy !== RankingStrategy.Default
+      ? applyRankingStrategy(scored, mergedConfig)
+      : rankArticles(scored, clampedLimit);
 
   const maxScore = ranked.length > 0 ? Math.max(...ranked.map((s) => s.suggestion.score)) : 1;
   const suggestions = ranked.map((s) => ({

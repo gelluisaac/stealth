@@ -46,20 +46,10 @@ export {
   KnowledgeBaseEngine,
 } from "./core/engine";
 
-export type {
-  KbResult,
-  KbOperation,
-  KbContractOutput,
-  KbContract,
-} from "./core/engine";
+export type { KbResult, KbOperation, KbContractOutput, KbContract } from "./core/engine";
 
 // Scoring
-export {
-  scoreArticle,
-  computeScores,
-  normalizeScore,
-  daysSinceUpdate,
-} from "./core/scoring";
+export { scoreArticle, computeScores, normalizeScore, daysSinceUpdate } from "./core/scoring";
 
 // Ranking
 export {

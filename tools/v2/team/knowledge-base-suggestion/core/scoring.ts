@@ -6,12 +6,7 @@
  * popularity bonus, and recency bonus. No imports from the main app.
  */
 
-import type {
-  KbArticle,
-  KbSuggestion,
-  KbMatchReason,
-  SuggestionConfig,
-} from "../types";
+import type { KbArticle, KbSuggestion, KbMatchReason, SuggestionConfig } from "../types";
 
 /**
  * Compute the age of an article in days from its updatedAt field.
@@ -35,21 +30,30 @@ export function normalizeScore(score: number, maxScore: number, minScore: number
 /**
  * Check if content contains a keyword and return a snippet.
  */
-function findContentSnippet(content: string, token: string, contextChars: number = 40): string | null {
+function findContentSnippet(
+  content: string,
+  token: string,
+  contextChars: number = 40,
+): string | null {
   const lowerContent = content.toLowerCase();
   const lowerToken = token.toLowerCase();
   const idx = lowerContent.indexOf(lowerToken);
   if (idx === -1) return null;
   const start = Math.max(0, idx - contextChars);
   const end = Math.min(content.length, idx + lowerToken.length + contextChars);
-  let snippet = (start > 0 ? "..." : "") + content.slice(start, end) + (end < content.length ? "..." : "");
+  const snippet =
+    (start > 0 ? "..." : "") + content.slice(start, end) + (end < content.length ? "..." : "");
   return snippet;
 }
 
 /**
  * Compute a popularity bonus score based on view count.
  */
-function computePopularityBonus(article: KbArticle, maxViewCount: number, weight: number): { bonus: number; reason: string } | null {
+function computePopularityBonus(
+  article: KbArticle,
+  maxViewCount: number,
+  weight: number,
+): { bonus: number; reason: string } | null {
   if (!article.viewCount || article.viewCount <= 0 || maxViewCount <= 0) return null;
   const normalizedBonus = (article.viewCount / maxViewCount) * weight;
   if (normalizedBonus <= 0) return null;
@@ -62,7 +66,10 @@ function computePopularityBonus(article: KbArticle, maxViewCount: number, weight
 /**
  * Compute a recency bonus based on how recently the article was updated.
  */
-function computeRecencyBonus(article: KbArticle, weight: number): { bonus: number; reason: string } | null {
+function computeRecencyBonus(
+  article: KbArticle,
+  weight: number,
+): { bonus: number; reason: string } | null {
   const days = daysSinceUpdate(article);
   if (days === null || days < 0) return null;
   // Articles updated within the last 7 days get full bonus, decaying logarithmically

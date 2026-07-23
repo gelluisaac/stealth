@@ -21,12 +21,7 @@ import {
   type KbContractOutput,
   type KbCorpusFilter,
 } from "../core/engine";
-import {
-  scoreArticle,
-  computeScores,
-  normalizeScore,
-  daysSinceUpdate,
-} from "../core/scoring";
+import { scoreArticle, computeScores, normalizeScore, daysSinceUpdate } from "../core/scoring";
 import {
   rankArticles,
   applyRankingStrategy,

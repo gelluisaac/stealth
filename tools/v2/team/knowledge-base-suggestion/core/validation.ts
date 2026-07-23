@@ -160,7 +160,10 @@ export function validateConfig(config: Partial<SuggestionConfig>): ValidationRes
 
   // Validate defaultLimit
   if (config.defaultLimit !== undefined) {
-    const limitErr = validateLimit(config.defaultLimit, config.maxLimit ?? DEFAULT_SUGGESTION_CONFIG.maxLimit!);
+    const limitErr = validateLimit(
+      config.defaultLimit,
+      config.maxLimit ?? DEFAULT_SUGGESTION_CONFIG.maxLimit!,
+    );
     if (limitErr) {
       errors.push({
         field: "defaultLimit",
@@ -224,10 +227,7 @@ export function validateInput(
 /**
  * Validate all fields on a SuggestInput, returning detailed errors.
  */
-export function validateSuggestInputDetailed(
-  input: unknown,
-  corpus: unknown,
-): ValidationResult {
+export function validateSuggestInputDetailed(input: unknown, corpus: unknown): ValidationResult {
   const errors: ValidationError[] = [];
   const warnings: string[] = [];
 

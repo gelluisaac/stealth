@@ -15,7 +15,8 @@ export const KB_ARTICLES: KbArticle[] = [
     title: "Team Onboarding Checklist",
     tags: ["onboarding", "getting-started", "team"],
     summary: "Steps for ramping new team members.",
-    content: "This comprehensive guide covers the full team onboarding process including workspace setup, tool access provisioning, mentor assignment, and first-week goals. Follow each step to ensure a smooth ramp-up for new hires.",
+    content:
+      "This comprehensive guide covers the full team onboarding process including workspace setup, tool access provisioning, mentor assignment, and first-week goals. Follow each step to ensure a smooth ramp-up for new hires.",
     category: "human-resources",
     locale: "en",
     access: "public",
@@ -40,7 +41,8 @@ export const KB_ARTICLES: KbArticle[] = [
     title: "Billing and Invoices FAQ",
     tags: ["billing", "invoices", "finance"],
     summary: "How to read invoices and handle disputes.",
-    content: "Frequently asked questions about billing cycles, invoice generation, payment methods, dispute resolution, and refund requests. For team-specific billing questions, contact the finance team directly.",
+    content:
+      "Frequently asked questions about billing cycles, invoice generation, payment methods, dispute resolution, and refund requests. For team-specific billing questions, contact the finance team directly.",
     category: "finance",
     locale: "en",
     access: "team",
@@ -65,7 +67,8 @@ export const KB_ARTICLES: KbArticle[] = [
     title: "Security Incident Response",
     tags: ["security", "incident", "runbook"],
     summary: "What to do during a security incident.",
-    content: "Step-by-step runbook for identifying, reporting, containing, and recovering from security incidents. Includes contact information for the security team and escalation procedures.",
+    content:
+      "Step-by-step runbook for identifying, reporting, containing, and recovering from security incidents. Includes contact information for the security team and escalation procedures.",
     category: "security",
     locale: "en",
     access: "public",
@@ -90,7 +93,8 @@ export const KB_ARTICLES: KbArticle[] = [
     title: "Developer Workflow Guide",
     tags: ["development", "workflow", "git"],
     summary: "Standard development workflow for the team.",
-    content: "Guide covering the standard Git workflow, code review process, CI/CD pipeline, and deployment procedures. Includes branch naming conventions and commit message format.",
+    content:
+      "Guide covering the standard Git workflow, code review process, CI/CD pipeline, and deployment procedures. Includes branch naming conventions and commit message format.",
     category: "engineering",
     locale: "en",
     access: "public",
@@ -115,7 +119,8 @@ export const KB_ARTICLES: KbArticle[] = [
     title: "Guide d'intégration pour les nouveaux",
     tags: ["onboarding", "integration", "equipe"],
     summary: "Étapes pour intégrer les nouveaux membres de l'équipe.",
-    content: "Ce guide couvre l'ensemble du processus d'intégration des nouveaux membres de l'équipe, y compris la configuration de l'espace de travail, l'attribution des accès aux outils, l'affectation d'un mentor et les objectifs de la première semaine.",
+    content:
+      "Ce guide couvre l'ensemble du processus d'intégration des nouveaux membres de l'équipe, y compris la configuration de l'espace de travail, l'attribution des accès aux outils, l'affectation d'un mentor et les objectifs de la première semaine.",
     category: "human-resources",
     locale: "fr",
     access: "public",
@@ -139,7 +144,8 @@ export const KB_ARTICLES: KbArticle[] = [
     title: "Internal API Documentation",
     tags: ["api", "development", "documentation"],
     summary: "Complete API reference for internal services.",
-    content: "Comprehensive documentation for all internal REST and GraphQL APIs, including authentication, endpoint references, request/response schemas, error codes, and usage examples.",
+    content:
+      "Comprehensive documentation for all internal REST and GraphQL APIs, including authentication, endpoint references, request/response schemas, error codes, and usage examples.",
     category: "engineering",
     locale: "en",
     access: "public",
@@ -164,7 +170,8 @@ export const KB_ARTICLES: KbArticle[] = [
     title: "Legacy Reporting Tool (Deprecated)",
     tags: ["reporting", "legacy", "deprecated"],
     summary: "Legacy reporting tool documentation (no longer maintained).",
-    content: "This documentation is for the legacy reporting tool which has been replaced by the new Analytics Dashboard. Do not use this tool for new reports.",
+    content:
+      "This documentation is for the legacy reporting tool which has been replaced by the new Analytics Dashboard. Do not use this tool for new reports.",
     category: "analytics",
     locale: "en",
     access: "team",
@@ -225,10 +232,24 @@ export function minRatingFilter(minRating: number): KbCorpusFilter {
 
 /** A large corpus for benchmarking (200 articles generated from patterns). */
 export function generateLargeCorpus(size: number = 200): KbArticle[] {
-  const categories = ["engineering", "finance", "security", "human-resources", "analytics", "operations"];
+  const categories = [
+    "engineering",
+    "finance",
+    "security",
+    "human-resources",
+    "analytics",
+    "operations",
+  ];
   const accesses = ["public", "team", "restricted"];
   const locales = ["en", "fr", "de", "es", "ja"];
-  const teams = ["engineering", "finance", "security-team", "people-ops", "data-team", "operations"];
+  const teams = [
+    "engineering",
+    "finance",
+    "security-team",
+    "people-ops",
+    "data-team",
+    "operations",
+  ];
   const baseArticles = KB_ARTICLES;
 
   const corpus: KbArticle[] = [];
@@ -253,7 +274,9 @@ export function generateLargeCorpus(size: number = 200): KbArticle[] {
       team,
       viewCount: Math.floor(Math.random() * 50000),
       rating: Math.round((Math.random() * 2 + 3) * 10) / 10, // 3.0 - 5.0
-      updatedAt: new Date(Date.now() - Math.floor(Math.random() * 90 * 24 * 60 * 60 * 1000)).toISOString(),
+      updatedAt: new Date(
+        Date.now() - Math.floor(Math.random() * 90 * 24 * 60 * 60 * 1000),
+      ).toISOString(),
       deprecated: Math.random() < 0.1, // 10% deprecated
     });
   }

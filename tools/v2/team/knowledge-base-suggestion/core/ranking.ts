@@ -6,11 +6,7 @@
  * No imports from the main app.
  */
 
-import type {
-  KbSuggestion,
-  KbMatchReason,
-  SuggestionConfig,
-} from "../types";
+import type { KbSuggestion, KbMatchReason, SuggestionConfig } from "../types";
 import { RankingStrategy } from "../types";
 
 /**
@@ -29,10 +25,7 @@ export interface ScoredResult {
  * @param limit - Maximum number of results to return
  * @returns Sorted and capped suggestions (without reasons)
  */
-export function rankArticles(
-  scored: ScoredResult[],
-  limit: number = 5,
-): ScoredResult[] {
+export function rankArticles(scored: ScoredResult[], limit: number = 5): ScoredResult[] {
   if (!Array.isArray(scored)) return [];
   if (scored.length === 0) return [];
 
@@ -156,10 +149,16 @@ export function applyRankingStrategy(
           (r) => r.type === "title-keyword" || r.type === "content-keyword",
         ).length;
         const popBonus = item.reasons
-          .filter((r): r is Extract<KbMatchReason, { type: "popularity-bonus" }> => r.type === "popularity-bonus")
+          .filter(
+            (r): r is Extract<KbMatchReason, { type: "popularity-bonus" }> =>
+              r.type === "popularity-bonus",
+          )
           .reduce((sum, r) => sum + r.bonus, 0);
         const recBonus = item.reasons
-          .filter((r): r is Extract<KbMatchReason, { type: "recency-bonus" }> => r.type === "recency-bonus")
+          .filter(
+            (r): r is Extract<KbMatchReason, { type: "recency-bonus" }> =>
+              r.type === "recency-bonus",
+          )
           .reduce((sum, r) => sum + r.bonus, 0);
 
         // Balanced: each factor contributes up to 25% of the score
@@ -192,9 +191,7 @@ export function applyRankingStrategy(
 /**
  * Deduplicate suggestions, keeping the highest-scored version.
  */
-export function deduplicateSuggestions(
-  suggestions: KbSuggestion[],
-): KbSuggestion[] {
+export function deduplicateSuggestions(suggestions: KbSuggestion[]): KbSuggestion[] {
   const seen = new Map<string, KbSuggestion>();
   for (const s of suggestions) {
     const existing = seen.get(s.articleId);
@@ -202,16 +199,15 @@ export function deduplicateSuggestions(
       seen.set(s.articleId, s);
     }
   }
-  return Array.from(seen.values()).sort((a, b) => b.score - a.score || a.title.localeCompare(b.title));
+  return Array.from(seen.values()).sort(
+    (a, b) => b.score - a.score || a.title.localeCompare(b.title),
+  );
 }
 
 /**
  * Merge multiple suggestion arrays, deduplicating and re-sorting.
  */
-export function mergeSuggestionSets(
-  sets: KbSuggestion[][],
-  limit: number = 10,
-): KbSuggestion[] {
+export function mergeSuggestionSets(sets: KbSuggestion[][], limit: number = 10): KbSuggestion[] {
   const all = sets.flat();
   const deduplicated = deduplicateSuggestions(all);
   return deduplicated.slice(0, Math.max(0, limit));

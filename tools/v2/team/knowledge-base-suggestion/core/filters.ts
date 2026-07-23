@@ -6,12 +6,7 @@
  * No imports from the main app.
  */
 
-import type {
-  KbArticle,
-  KbCorpusFilter,
-  KbCorpusFilterResult,
-  FilterConfig,
-} from "../types";
+import type { KbArticle, KbCorpusFilter, KbCorpusFilterResult, FilterConfig } from "../types";
 import { FilterType } from "../types";
 
 /**
@@ -87,93 +82,66 @@ export function buildFilter(config: FilterConfig): KbCorpusFilter {
 
   switch (config.type) {
     case FilterType.Access: {
-      return createFilter(
-        (article: KbArticle) => {
-          const matches = article.access === config.value;
-          return inclusive ? matches : !matches;
-        },
-        filterName,
-      );
+      return createFilter((article: KbArticle) => {
+        const matches = article.access === config.value;
+        return inclusive ? matches : !matches;
+      }, filterName);
     }
 
     case FilterType.Locale: {
-      return createFilter(
-        (article: KbArticle) => {
-          const matches = article.locale === config.value;
-          return inclusive ? matches : !matches;
-        },
-        filterName,
-      );
+      return createFilter((article: KbArticle) => {
+        const matches = article.locale === config.value;
+        return inclusive ? matches : !matches;
+      }, filterName);
     }
 
     case FilterType.Team: {
-      return createFilter(
-        (article: KbArticle) => {
-          const matches = article.team === config.value;
-          return inclusive ? matches : !matches;
-        },
-        filterName,
-      );
+      return createFilter((article: KbArticle) => {
+        const matches = article.team === config.value;
+        return inclusive ? matches : !matches;
+      }, filterName);
     }
 
     case FilterType.Product: {
-      return createFilter(
-        (article: KbArticle) => {
-          const matches = article.product === config.value;
-          return inclusive ? matches : !matches;
-        },
-        filterName,
-      );
+      return createFilter((article: KbArticle) => {
+        const matches = article.product === config.value;
+        return inclusive ? matches : !matches;
+      }, filterName);
     }
 
     case FilterType.Category: {
-      return createFilter(
-        (article: KbArticle) => {
-          const matches = article.category === config.value;
-          return inclusive ? matches : !matches;
-        },
-        filterName,
-      );
+      return createFilter((article: KbArticle) => {
+        const matches = article.category === config.value;
+        return inclusive ? matches : !matches;
+      }, filterName);
     }
 
     case FilterType.Deprecated: {
       const keepDeprecated = Boolean(config.value);
-      return createFilter(
-        (article: KbArticle) => {
-          const matches = article.deprecated === true;
-          return keepDeprecated ? matches : !matches;
-        },
-        filterName,
-      );
+      return createFilter((article: KbArticle) => {
+        const matches = article.deprecated === true;
+        return keepDeprecated ? matches : !matches;
+      }, filterName);
     }
 
     case FilterType.MinRating: {
       const minRating = Number(config.value);
-      return createFilter(
-        (article: KbArticle) => {
-          const rating = article.rating ?? 0;
-          return rating >= minRating;
-        },
-        filterName,
-      );
+      return createFilter((article: KbArticle) => {
+        const rating = article.rating ?? 0;
+        return rating >= minRating;
+      }, filterName);
     }
 
     case FilterType.Author: {
-      return createFilter(
-        (article: KbArticle) => {
-          const matches = article.author === config.value;
-          return inclusive ? matches : !matches;
-        },
-        filterName,
-      );
+      return createFilter((article: KbArticle) => {
+        const matches = article.author === config.value;
+        return inclusive ? matches : !matches;
+      }, filterName);
     }
 
     default: {
       // Unknown filter type — pass-through with warning
-      return createFilter(
-        (_article: KbArticle) => true,
-        `unknown-${config.type}`,
-      );
+      return createFilter((_article: KbArticle) => true, `unknown-${config.type}`);
     }
   }
 }

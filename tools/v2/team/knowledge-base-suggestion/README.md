@@ -40,7 +40,7 @@ const contract = createKbSuggestionService();
 const res = contract.execute(
   { operation: "suggest", input: { query: "invoice billing" } },
   corpus,
-  [publicFilter]
+  [publicFilter],
 );
 if (res.ok && res.value.operation === "suggest") {
   // res.value.suggestions is ranked by relevance

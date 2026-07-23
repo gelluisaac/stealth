@@ -242,10 +242,7 @@ export class AnalyticsCollector {
     const counts = new Map<string, number>();
     for (const event of this.events) {
       if (event.selected && event.selectedArticleId) {
-        counts.set(
-          event.selectedArticleId,
-          (counts.get(event.selectedArticleId) ?? 0) + 1,
-        );
+        counts.set(event.selectedArticleId, (counts.get(event.selectedArticleId) ?? 0) + 1);
       }
     }
     return Array.from(counts.entries())
@@ -264,23 +261,15 @@ export class AnalyticsCollector {
     const selectionEvents = this.events.filter(
       (e) => e.type === AnalyticsEventType.SuggestionSelected,
     );
-    const errorEvents = this.events.filter(
-      (e) => e.type === AnalyticsEventType.Error,
-    );
-    const cacheHitEvents = this.events.filter(
-      (e) => e.type === AnalyticsEventType.CacheHit,
-    );
-    const cacheMissEvents = this.events.filter(
-      (e) => e.type === AnalyticsEventType.CacheMiss,
-    );
+    const errorEvents = this.events.filter((e) => e.type === AnalyticsEventType.Error);
+    const cacheHitEvents = this.events.filter((e) => e.type === AnalyticsEventType.CacheHit);
+    const cacheMissEvents = this.events.filter((e) => e.type === AnalyticsEventType.CacheMiss);
 
     const totalRequests = requestEvents.length;
     const totalSelections = selectionEvents.length;
 
     // Requests with results: suggestion-requested events with non-empty articleIds
-    const requestsWithResults = requestEvents.filter(
-      (e) => e.articleIds.length > 0,
-    ).length;
+    const requestsWithResults = requestEvents.filter((e) => e.articleIds.length > 0).length;
     const requestsWithNoResults = totalRequests - requestsWithResults;
 
     // Selection rate
@@ -349,9 +338,7 @@ export class AnalyticsCollector {
    * Get events within a time range.
    */
   getEventsInRange(startTimestamp: number, endTimestamp: number): AnalyticsEvent[] {
-    return this.events.filter(
-      (e) => e.timestamp >= startTimestamp && e.timestamp <= endTimestamp,
-    );
+    return this.events.filter((e) => e.timestamp >= startTimestamp && e.timestamp <= endTimestamp);
   }
 
   /**
